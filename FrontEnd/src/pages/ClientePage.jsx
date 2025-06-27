@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import clientesService from "../services/clientesService";
 import { VolverButton } from "../components/Buttons";
 
-
 const ClientePage = () => {
   const [clientes, setClientes] = useState([]);
   const [nuevoCliente, setNuevoCliente] = useState({ nombre: "", correo: "" });
   const [modoEdicion, setModoEdicion] = useState(false);
   const [clienteEditando, setClienteEditando] = useState(null);
+  const [idBusqueda, setIdBusqueda] = useState(""); // 🔍 estado para ID de búsqueda
+  const [clienteBuscado, setClienteBuscado] = useState(null); // 🔍 resultado búsqueda
 
   useEffect(() => {
     cargarClientes();
@@ -80,11 +81,55 @@ const ClientePage = () => {
     }
   };
 
+  // 🔍 Buscar cliente por ID
+  const handleBuscarPorId = async () => {
+    if (!idBusqueda) {
+      alert("Ingrese un ID válido");
+      return;
+    }
+
+    try {
+      const cliente = await clientesService.getById(idBusqueda);
+      if (cliente) {
+        setClienteBuscado(cliente);
+      } else {
+        alert("Cliente no encontrado.");
+        setClienteBuscado(null);
+      }
+    } catch (error) {
+      alert("Error al buscar cliente.");
+      setClienteBuscado(null);
+    }
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <h2>Módulo de Clientes</h2>
       <VolverButton />
 
+      {/* 🔍 Buscar por ID */}
+      <div style={{ marginBottom: "20px" }}>
+        <input
+          type="number"
+          placeholder="Buscar cliente por ID"
+          value={idBusqueda}
+          onChange={(e) => setIdBusqueda(e.target.value)}
+        />
+        <button onClick={handleBuscarPorId}>Buscar</button>
+      </div>
+
+      {/* Mostrar cliente encontrado */}
+      {clienteBuscado && (
+        <div style={{ marginBottom: "20px", border: "1px solid #ccc", padding: "10px" }}>
+          <h4>Cliente encontrado:</h4>
+          <p><strong>ID:</strong> {clienteBuscado.idCliente}</p>
+          <p><strong>Nombre:</strong> {clienteBuscado.nombre}</p>
+          <p><strong>Correo:</strong> {clienteBuscado.correo}</p>
+          <button onClick={() => setClienteBuscado(null)}>Cerrar</button>
+        </div>
+      )}
+
+      {/* Formulario Insertar / Editar */}
       <div style={{ marginBottom: "20px" }}>
         <input
           type="text"
@@ -110,6 +155,7 @@ const ClientePage = () => {
         )}
       </div>
 
+      {/* Tabla de Clientes */}
       <table border="1" style={{ margin: "0 auto" }}>
         <thead>
           <tr>
