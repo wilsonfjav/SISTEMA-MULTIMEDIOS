@@ -7,8 +7,8 @@ const ClientePage = () => {
   const [nuevoCliente, setNuevoCliente] = useState({ nombre: "", correo: "" });
   const [modoEdicion, setModoEdicion] = useState(false);
   const [clienteEditando, setClienteEditando] = useState(null);
-  const [idBusqueda, setIdBusqueda] = useState(""); // 🔍 estado para ID de búsqueda
-  const [clienteBuscado, setClienteBuscado] = useState(null); // 🔍 resultado búsqueda
+  const [idBusqueda, setIdBusqueda] = useState(""); // estado para ID de búsqueda
+  const [clienteBuscado, setClienteBuscado] = useState(null); //  resultado búsqueda
 
   useEffect(() => {
     cargarClientes();

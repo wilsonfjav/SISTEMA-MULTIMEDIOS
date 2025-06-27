@@ -12,6 +12,8 @@ const ConsumoPage = () => {
   });
   const [modoEdicion, setModoEdicion] = useState(false);
   const [consumoEditando, setConsumoEditando] = useState(null);
+  const [idBusqueda, setIdBusqueda] = useState("");
+  const [consumoBuscado, setConsumoBuscado] = useState(null);
 
   useEffect(() => {
     cargarConsumos();
@@ -82,31 +84,74 @@ const ConsumoPage = () => {
     }
   };
 
+  const buscarPorId = async () => {
+    if (!idBusqueda) {
+      alert("Ingrese un ID de consumo para buscar.");
+      return;
+    }
+    try {
+      const data = await consumoService.getById(idBusqueda);
+      if (data) {
+        setConsumoBuscado(data);
+      } else {
+        alert("Consumo no encontrado.");
+        setConsumoBuscado(null);
+      }
+    } catch (error) {
+      alert("Error al buscar consumo.");
+      setConsumoBuscado(null);
+    }
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <h2>Módulo de Consumo</h2>
       <VolverButton />
 
+      {/* 🔍 Búsqueda por ID */}
+      <div style={{ marginBottom: "20px" }}>
+        <input
+          type="number"
+          placeholder="Buscar consumo por ID"
+          value={idBusqueda}
+          onChange={(e) => setIdBusqueda(e.target.value)}
+        />
+        <button onClick={buscarPorId}>Buscar</button>
+      </div>
+
+      {/* Formulario de resultado de búsqueda */}
+      {consumoBuscado && (
+        <div style={{ border: "1px solid black", padding: "10px", marginBottom: "20px" }}>
+          <h4>Consumo encontrado:</h4>
+          <p>ID: {consumoBuscado.idConsumo}</p>
+          <p>Reservación: {consumoBuscado.idReservacion}</p>
+          <p>Servicio: {consumoBuscado.idServicio}</p>
+          <p>Cantidad: {consumoBuscado.cantidad}</p>
+          <p>Fecha: {consumoBuscado.fecha}</p>
+        </div>
+      )}
+
+      {/* Formulario Insertar / Editar */}
       <div style={{ marginBottom: "20px" }}>
         <input
           type="text"
           name="idReservacion"
           placeholder="ID Reservación"
-          value={modoEdicion ? consumoEditando.idReservacion : nuevoConsumo.idReservacion}
+          value={modoEdicion ? consumoEditando?.idReservacion : nuevoConsumo.idReservacion}
           onChange={handleChange}
         />
         <input
           type="text"
           name="idServicio"
           placeholder="ID Servicio"
-          value={modoEdicion ? consumoEditando.idServicio : nuevoConsumo.idServicio}
+          value={modoEdicion ? consumoEditando?.idServicio : nuevoConsumo.idServicio}
           onChange={handleChange}
         />
         <input
           type="number"
           name="cantidad"
           placeholder="Cantidad"
-          value={modoEdicion ? consumoEditando.cantidad : nuevoConsumo.cantidad}
+          value={modoEdicion ? consumoEditando?.cantidad : nuevoConsumo.cantidad}
           onChange={handleChange}
         />
         <input
@@ -115,7 +160,7 @@ const ConsumoPage = () => {
           placeholder="Fecha"
           value={
             modoEdicion
-              ? consumoEditando.fecha?.split(' ')[0] || ''
+              ? consumoEditando?.fecha?.split(' ')[0] || ''
               : nuevoConsumo.fecha?.split(' ')[0] || ''
           }
           onChange={handleChange}
@@ -131,6 +176,7 @@ const ConsumoPage = () => {
         )}
       </div>
 
+      {/* Tabla de consumos */}
       <table border="1" style={{ margin: "0 auto" }}>
         <thead>
           <tr>
@@ -169,3 +215,4 @@ const ConsumoPage = () => {
 };
 
 export default ConsumoPage;
+
